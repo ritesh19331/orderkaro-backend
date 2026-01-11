@@ -1,5 +1,6 @@
 package com.orderkaro.service.impl;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -71,5 +72,17 @@ public class ShopServiceImpl implements ShopService {
         }
 
         shop.close();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Shop> getAllActiveShops() {
+        return shopRepository.findByStatus(ShopStatus.APPROVED);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Shop> getNearbyShops(Double lat, Double lng, Double radiusInKm) {
+        return shopRepository.findShopsNear(lat, lng, radiusInKm);
     }
 }

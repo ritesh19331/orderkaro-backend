@@ -1,5 +1,6 @@
 package com.orderkaro.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import com.orderkaro.dto.CreateShopRequest;
@@ -12,4 +13,8 @@ public interface ShopService {
     void openShop(UUID shopId, UUID ownerId);
 
     void closeShop(UUID shopId, UUID ownerId);
+
+    List<Shop> getAllActiveShops();
+
+    List<Shop> getNearbyShops(Double lat, Double lng, Double radiusInKm);
 }

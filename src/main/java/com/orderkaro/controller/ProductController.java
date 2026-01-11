@@ -76,30 +76,6 @@ public class ProductController {
     public void deleteMaster(@PathVariable UUID productId) {
         productService.deleteMasterProduct(productId);
     }
-
-//    @Operation(summary = "Search master products with filters, pagination, and sorting")
-//    @PostMapping("/master/search")
-//    public ResponseEntity<Page<Product>> searchMaster(@RequestBody ProductSearchRequest request) {
-//
-//        // Build Sort safely
-//        Sort sort = Sort.by(
-//            request.getSort() != null
-//                ? request.getSort().stream()
-//                    .map(s -> {
-//                        String[] parts = s.split(",");
-//                        if (parts.length != 2) parts = new String[]{parts[0], "asc"}; // default to asc
-//                        return new Sort.Order(Sort.Direction.fromString(parts[1].trim()), parts[0].trim());
-//                    })
-//                    .collect(Collectors.toList())
-//                : List.of()
-//        );
-//
-//        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
-//
-//        Page<Product> products = productService.searchMasterProducts(request.getFilters(), pageable);
-//
-//        return ResponseEntity.ok(products);
-//    }
     
     @Operation(summary = "Search master products with filters, pagination, and sorting")
     @PostMapping("/master/search")
@@ -165,6 +141,15 @@ public class ProductController {
                                                       @PathVariable UUID productId) {
         ShopProduct sp = productService.getShopProduct(shopId, productId);
         return ResponseEntity.ok(sp);
+    }
+
+    @Operation(summary = "Search shop products")
+    @PostMapping("/{shopId}/search")
+    public ResponseEntity<Page<ShopProduct>> searchShopProducts(@PathVariable UUID shopId,
+                                                                @RequestBody ProductFilterRequest request,
+                                                                Pageable pageable) {
+        Page<ShopProduct> page = productService.listShopProducts(shopId, request, pageable);
+        return ResponseEntity.ok(page);
     }
 
     @Operation(summary = "Delete a shop product")

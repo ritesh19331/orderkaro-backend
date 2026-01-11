@@ -11,7 +11,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.persistence.Version;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -42,6 +42,10 @@ public class ShopProduct extends BaseEntity {
 
     @Column(name = "product_id", nullable = false, columnDefinition = "uuid")
     private UUID productId;
+
+    // No JPA Mapping, handled manually
+    @Transient
+    private Product product;
 
     /* ---------- Pricing ---------- */
 

@@ -1,6 +1,11 @@
 package com.orderkaro.service.impl;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -89,13 +94,6 @@ public class ProductServiceImpl implements ProductService {
         // Will trigger @SQLDelete soft delete
     }
 
-//    @Override
-//    @Transactional(readOnly = true)
-//	public Page<Product> searchMasterProducts(ProductFilterRequest filters, Pageable pageable) {
-//        Specification<Product> spec = ProductSpecifications.withFilters(filters);
-//        return productRepository.findAll(spec, pageable);
-//    }
-    
     @Override
     @Transactional(readOnly = true)
     public Page<Product> searchMasterProducts(ProductFilterRequest filters, Pageable pageable) {
@@ -143,6 +141,7 @@ public class ProductServiceImpl implements ProductService {
 
         // Set default max order quantity if not provided
         sp.setMaxOrderQuantity(Math.max(1, request.getStockQuantity()));
+        sp.setProduct(product); // Set for response
 
         return shopProductRepository.save(sp);
     }
@@ -158,7 +157,6 @@ public class ProductServiceImpl implements ProductService {
         sp.setStock(request.getStockQuantity());
         sp.setAvailable(request.getVisible()); // mapping visible -> isAvailable
 
-
         return shopProductRepository.save(sp);
     }
 
@@ -173,13 +171,33 @@ public class ProductServiceImpl implements ProductService {
         // Will trigger @SQLDelete soft delete
     }
 
-//    @Override
-//    @Transactional(readOnly = true)
-//    public Page<ShopProduct> listShopProducts(UUID shopId, ProductFilterRequest filters, Pageable pageable) {
-//        // TODO: implement filtering with specs
-//
-//        return shopProductRepository.searchShopProducts(shopId, filters, pageable);
-//    }
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ShopProduct> listShopProducts(UUID shopId, ProductFilterRequest filters, Pageable pageable) {
+        
+        Specification<ShopProduct> spec = (root, query, cb) -> {
+            return cb.equal(root.get("shopId"), shopId);
+        };
+        
+        Page<ShopProduct> page = shopProductRepository.findAll(spec, pageable);
+        
+        // Manual Fetch & Merge Logic
+        Set<UUID> productIds = page.getContent().stream()
+                .map(ShopProduct::getProductId)
+                .collect(Collectors.toSet());
+        
+        if (!productIds.isEmpty()) {
+            Map<UUID, Product> productMap = productRepository.findAllById(productIds).stream()
+                    .collect(Collectors.toMap(Product::getId, Function.identity()));
+            
+            // Populate @Transient field
+            page.getContent().forEach(sp -> {
+                sp.setProduct(productMap.get(sp.getProductId()));
+            });
+        }
+
+        return page;
+    }
 
     @Override
     @Transactional(readOnly = true)
