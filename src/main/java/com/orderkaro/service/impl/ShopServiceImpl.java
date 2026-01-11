@@ -77,12 +77,12 @@ public class ShopServiceImpl implements ShopService {
     @Override
     @Transactional(readOnly = true)
     public List<Shop> getAllActiveShops() {
-        return shopRepository.findByStatus(ShopStatus.APPROVED);
+        return shopRepository.findByStatus(ShopStatus.ACTIVE);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Shop> getNearbyShops(Double lat, Double lng, Double radiusInKm) {
-        return shopRepository.findShopsNear(lat, lng, radiusInKm);
+    public Shop findNearestShop(Double lat, Double lon) {
+        return shopRepository.findNearestShop(lat, lon);
     }
 }

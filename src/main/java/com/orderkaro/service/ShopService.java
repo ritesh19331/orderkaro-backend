@@ -16,5 +16,6 @@ public interface ShopService {
 
     List<Shop> getAllActiveShops();
 
-    List<Shop> getNearbyShops(Double lat, Double lng, Double radiusInKm);
+    // New Geolocation Method
+    Shop findNearestShop(Double lat, Double lon);
 }

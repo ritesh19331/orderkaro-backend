@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.orderkaro.dto.CreateShopRequest;
@@ -66,6 +67,18 @@ public class ShopController {
             .map(this::toResponse)
             .collect(Collectors.toList());
         return ResponseEntity.ok(responses); // Correctly returns list
+    }
+
+    @GetMapping("/nearest")
+    public ResponseEntity<ShopResponse> getNearestShop(
+            @RequestParam Double lat,
+            @RequestParam Double lon
+    ) {
+        Shop shop = shopService.findNearestShop(lat, lon);
+        if (shop == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(toResponse(shop));
     }
 
     private ShopResponse toResponse(Shop shop) {
