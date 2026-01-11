@@ -14,7 +14,7 @@ public class JpaAuditConfig {
 
     @Bean
     public AuditorAware<String> auditorAware() {
-        return () -> Optional.of("SYSTEM"); // later replace with user
+        return () -> Optional.of(CurrentUser.userId() == null ? "SYSTEM" : CurrentUser.userId());
     }
 }
 
